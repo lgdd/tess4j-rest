@@ -1,0 +1,29 @@
+FROM azul/zulu-openjdk-debian:11-latest
+
+RUN apt update \
+    && apt install -y tini tesseract-ocr \
+    && rm -rf /var/libs/apt/lists/*
+
+RUN groupadd -g 10001 tesseract \
+    && useradd -u 10000 -g tesseract tesseract \
+    && mkdir -p /home/tesseract \
+    && chown -R tesseract:tesseract /home/tesseract
+
+USER tesseract:tesseract
+WORKDIR /home/tesseract
+
+ENV TESSDATA_PREFIX="/home/tesseract/tessdata"
+ENV TESSERACT_DATA_SUFFIX="best"
+ENV TESSERACT_DATA_VERSION="4.1.0"
+ENV TESSERACT_DATA_LANGS=""
+
+RUN mkdir -p $TESSDATA_PREFIX
+ADD --chown=tesseract:tesseract https://github.com/tesseract-ocr/tessdata_$TESSERACT_DATA_SUFFIX/raw/$TESSERACT_DATA_VERSION/eng.traineddata $TESSDATA_PREFIX/eng.traineddata
+
+COPY --chown=tesseract:tesseract .mvn .mvn
+COPY --chown=tesseract:tesseract mvnw mvnw
+COPY --chown=tesseract:tesseract pom.xml .
+RUN ./mvnw -B dependency:go-offline
+
+COPY --chown=tesseract:tesseract src src
+RUN ./mvnw -B clean package

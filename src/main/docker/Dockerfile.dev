@@ -1,0 +1,29 @@
+FROM azul/zulu-openjdk-debian:11-latest
+
+RUN apt update \
+  && apt install -y tini tesseract-ocr \
+  && rm -rf /var/libs/apt/lists/* \
+  && mkdir -p /opt/tesseract/tessdata
+
+WORKDIR /opt/tesseract
+
+ENV TESSDATA_PREFIX="/opt/tesseract/tessdata"
+ENV TESSERACT_DATA_SUFFIX="best"
+ENV TESSERACT_DATA_VERSION="4.1.0"
+
+ENV TESSERACT_DATA_LANGS=""
+
+RUN mkdir -p $TESSDATA_PREFIX
+ADD https://github.com/tesseract-ocr/tessdata_$TESSERACT_DATA_SUFFIX/raw/$TESSERACT_DATA_VERSION/eng.traineddata $TESSDATA_PREFIX/eng.traineddata
+
+COPY .mvn .mvn
+COPY mvnw mvnw
+COPY pom.xml .
+RUN ./mvnw -B dependency:go-offline
+
+COPY src src
+RUN ./mvnw -B clean package
+
+EXPOSE 8000 5005
+ENTRYPOINT ["/usr/bin/tini", "--", "/opt/tesseract/mvnw"]
+CMD ["quarkus:dev", "-Dquarkus.log.category.\"com.github.lgdd.tess4jrest\".level=DEBUG"]

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  dev:
+    build:
+      dockerfile: src/main/docker/Dockerfile.dev
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/opt/tesseract/src

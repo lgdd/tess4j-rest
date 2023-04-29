@@ -1,0 +1,2 @@
+The (quick) [brown] {fox} jumps!
+Over the $43,456.78 <lazy> #90 dog
