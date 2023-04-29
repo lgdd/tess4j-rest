@@ -1,0 +1,62 @@
+name: Release JAR
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  publish_release:
+    name: Publish Release
+    needs: create_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get App Version
+        id: get_version
+        run: |
+          TAG=${{ github.ref_name }}
+          echo "APP_VERSION=${TAG#v}" >> $GITHUB_ENV
+      - name: Set up JDK
+        id: setup_jdk
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+          cache: maven
+      - name: Build with Maven
+        id: build_maven
+        run: |
+          mvn -B package
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/quarkus-run.jar
+          asset_name: com.github.lgdd.tess4jrest-${{ env.APP_VERSION }}.jar
+          asset_content_type: application/octet-stream
+      - name: Rollback Release
+        if: failure() && needs.create_release.outputs.id != ''
+        uses: author/action-rollback@stable
+        with:
+          id: ${{ needs.create_release.id }}
+          tag: ${{ github.ref }}
