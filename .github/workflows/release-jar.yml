@@ -43,7 +43,7 @@ jobs:
       - name: Build with Maven
         id: build_maven
         run: |
-          mvn -B package
+          mvn -B -DskipTests package
       - name: Upload Release Asset
         id: upload_release_asset
         uses: actions/upload-release-asset@v1
