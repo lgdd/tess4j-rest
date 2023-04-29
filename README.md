@@ -2,11 +2,21 @@
 
 OCR REST API using [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract) (via [Tess4J](https://github.com/nguyenq/tess4j))
 
+## Docker Image
+
+Docker image available: https://hub.docker.com/r/lgdd/tess4j-rest
+
+Try and run:
+
+```sh
+docker run -it --rm -p 8000:8000 lgdd/tess4j-rest
+```
+
 ## Usage
 
 Run `docker-compose up --build` (also available as `make dev`).
 
-> __Note__: You can also run `./mvnw quarkus:dev` (or `quarkus dev`).
+> **Note**: You can also run `./mvnw quarkus:dev` (or `quarkus dev`).
 > But for this method to work, you would need the environment variable _TESSDATA_PREFIX_ to be set to the absolute path of this project resource: `src/test/resources/test-tessdata/eng.traineddata`
 
 You can navigate to `http://localhost:8000/q/swagger-ui` and test uploading an image.
@@ -44,6 +54,7 @@ ENV TESSERACT_DATA_LANGS="fra,spa,deu"
 ## Health probes
 
 Readiness: `/q/healh/ready`
+
 Liveness: `/q/healh/live`
 
 Application is ready and live when all additional languages has been downloaded.
