@@ -51,7 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/quarkus-run.jar
+          asset_path: ./target/quarkus-app/quarkus-run.jar
           asset_name: com.github.lgdd.tess4jrest-${{ env.APP_VERSION }}.jar
           asset_content_type: application/octet-stream
       - name: Rollback Release
