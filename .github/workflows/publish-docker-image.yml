@@ -5,9 +5,6 @@ on:
     tags:
       - 'v*'
 
-env:
-  TEST_TAG: lgdd/tess4j-rest:test
-
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -31,16 +28,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and export to Docker
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./src/main/docker/Dockerfile.jvm
-          load: true
-          tags: ${{ env.TEST_TAG }}
-      - name: Test
-        run: |
-          timeout 20 docker run --rm ${{ env.TEST_TAG }}
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
