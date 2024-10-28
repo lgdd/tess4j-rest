@@ -1,4 +1,3 @@
-version: '3'
 services:
   dev:
     build:
@@ -8,3 +7,5 @@ services:
       - "8000:8000"
     volumes:
       - ./src:/opt/tesseract/src
+    environment:
+      TESSERACT_DATA_LANGS: "fra,eng,deu"
