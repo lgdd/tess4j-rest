@@ -39,6 +39,9 @@ public class TesseractDataService {
       try (FileOutputStream targetOutputStream = new FileOutputStream(targetPath)) {
         targetOutputStream.getChannel().transferFrom(sourceByteChannel, 0, Long.MAX_VALUE);
       }
+      if (log.isInfoEnabled()) {
+        log.infof("Finished downloading %s to %s", dataLang.toUpperCase(), targetPath);
+      }
     } else {
       if (log.isInfoEnabled()) {
         log.infof("%s already supported with %s", dataLang.toUpperCase(), targetPath);
