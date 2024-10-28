@@ -1,5 +1,7 @@
 package com.github.lgdd.tess4jrest;
 
+import static com.github.lgdd.tess4jrest.TesseractApplication.TESSERACT_DATA_LANGS;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.sourceforge.tess4j.ITesseract;
@@ -37,7 +40,18 @@ public class TesseractResource {
               required = true,
               content = @Content(schema = @Schema(implementation = FileUploadSchema.class)))
           @RestForm("file")
-          FileUpload fileUpload) {
+          FileUpload fileUpload,
+          @QueryParam("lang") String lang) {
+
+    if(lang != null && TESSERACT_DATA_LANGS.contains(lang)) {
+        log.infof("Lang=%s", lang);
+        tesseract.setLanguage(lang);
+    } else if(lang != null && !TESSERACT_DATA_LANGS.contains(lang)) {
+      log.warnf("Trained data was not downloaded for %s", lang);
+      log.warnf("You can add a lang to the environment variable TESSERACT_DATA_LANGS (see https://github.com/lgdd/tess4j-rest?tab=readme-ov-file#environment-variables)");
+    } else {
+      log.warn("No lang was selected. For better detection, consider passing the corresponding lang parameter (e.g. lang=fra for French)");
+    }
 
     String detectedText;
     try {

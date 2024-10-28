@@ -27,6 +27,22 @@ public class TesseractResourceTest {
   }
 
   @Test
+  public void testDetectTextEndpointWithLang() {
+    File testFile = new File(testResourcesData, "eurotext.png");
+    String expectedText = "Le renard brun\n"
+        + "«rapide» saute par-dessus le chien\n"
+        + "paresseux.";
+
+    given()
+        .multiPart(testFile)
+        .when()
+        .post("/detect-text?lang=fra")
+        .then()
+        .statusCode(200)
+        .body(containsString(expectedText));
+  }
+
+  @Test
   public void testDetectTextEndpointWithWrongFile() {
     File testFile = new File(testResourcesData, "eurotext.txt");
 
